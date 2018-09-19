@@ -237,6 +237,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
 
     final Integer mPhoneId;
 
+    private boolean mUseOldMncMccFormat;
+
+    private static final String PROPERTY_IS_VONR_ENABLED = "persist.radio.is_vonr_enabled_";
+
     /**
      * A set that records if radio service is disabled in hal for
      * a specific phone id slot to avoid further getService request.
@@ -654,6 +658,9 @@ public class RIL extends BaseCommands implements CommandsInterface {
         if (isRadioBugDetectionEnabled()) {
             mRadioBugDetector = new RadioBugDetector(context, mPhoneId);
         }
+
+        mUseOldMncMccFormat = SystemProperties.getBoolean(
+                "ro.telephony.use_old_mnc_mcc_format", false);
 
         TelephonyManager tm = (TelephonyManager) context.getSystemService(
                 Context.TELEPHONY_SERVICE);
@@ -2374,6 +2381,11 @@ public class RIL extends BaseCommands implements CommandsInterface {
         if (radioProxy != null) {
             RILRequest rr = obtainRequest(RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL, result,
                     mRILDefaultWorkSource);
+
+            if (mUseOldMncMccFormat && !TextUtils.isEmpty(operatorNumeric)) {
+                operatorNumeric += "+";
+            }
+
             try {
                 int halRan = convertAntToRan(ran);
                 if (mRadioVersion.greaterOrEqual(RADIO_HAL_VERSION_1_5)) {
