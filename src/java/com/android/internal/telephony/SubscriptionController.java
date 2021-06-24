@@ -913,9 +913,9 @@ public class SubscriptionController extends ISub.Stub {
         } finally {
             Binder.restoreCallingIdentity(identity);
         }
-        if (subList != null && !skipConditionallyRemoveIdentifier) {
+        if (subList != null) {
             if (VDBG) logd("[getAllSubInfoList]- " + subList.size() + " infos return");
-            subList = subList.stream().map(
+            subList.stream().map(
                     subscriptionInfo -> conditionallyRemoveIdentifiers(subscriptionInfo,
                             callingPackage, callingFeatureId, "getAllSubInfoList"))
                     .collect(Collectors.toList());
